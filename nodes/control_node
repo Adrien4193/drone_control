@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+import sys
+
+import math
+
+import rospy
+
+from drone_control import ControlledDrone, RigidBody, Attitude
+
+# Remove green logs using rospy.INFO
+rospy.init_node('control', anonymous=True, log_level=rospy.DEBUG)
+
+# VRPN Id of the drone's rigid body defines in Motive
+# A timer is automatically sending the setpoints in background
+drone = ControlledDrone(
+    rospy.get_param('~tracking/drone'),
+    rospy.get_param('~control/rate')
+)
+
+# For demo
+target = RigidBody(
+    rospy.get_param('~tracking/target')
+)
+
+# Wait for connection from MAVROS
+rospy.loginfo('Waiting for connection...')
+while not drone.connected and not rospy.is_shutdown():
+    rospy.sleep(0.1)
+rospy.loginfo('Connection established !')
+
+# Better to deal with arming and flight mode with remote
+drone.arm(True)
+
+rospy.loginfo('Waiting for arming...')
+while not drone.armed and not rospy.is_shutdown():
+    rospy.sleep(0.1)
+rospy.loginfo('Drone armed !')
+
+# Can be done only if drone is sending setpoints (attitude or pose)
+# at more than 2Hz
+drone.mode = 'OFFBOARD'
+
+# Demo to increase thrust with target's height
+rate = rospy.Rate(30)
+while not rospy.is_shutdown():
+
+    thrust = target.pose.z / math.pi if target.tracked else 0
+
+    if thrust > 0.3:
+        thrust = 0.3
+    elif thrust < 0:
+        thrust = 0
+        
+    drone.attitude = Attitude(0, 0, 0, thrust)
+
+    rate.sleep()

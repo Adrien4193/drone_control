@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>drone_control</name>
+  <version>1.0.0</version>
+  <description>Minimal setup to control a PX4 drone with a MoCap system supporting VRPN</description>
+
+  <maintainer email="adrien.fleury93@gmail.com">Adrien Fleury</maintainer>
+
+  <license>BDS</license>
+
+  <!-- <url type="website">http://wiki.ros.org/drone_control</url> -->
+
+  <author email="adrien.fleury93@gmail.com">Adrien Fleury</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

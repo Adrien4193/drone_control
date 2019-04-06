@@ -1,0 +1,9 @@
+# control configuration file
+
+tracking:
+  timeout: 0.1  # [s]
+  drone: "Drone"  #  Must match the name of the rigid body in Motive
+  target: "Target"  # For demo
+
+control:
+  rate: 60.0  # [Hz]

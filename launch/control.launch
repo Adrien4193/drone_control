@@ -1,0 +1,49 @@
+<!-- Launches drone control.
+		
+	Usage:
+		"roslaunch drone_control control.launch <arg_name>:=<value>"
+-->
+
+<launch>
+	
+	<!-- ======================== ARGUMENTS ======================== -->
+	
+	<!-- Connection to VRPN server (Motive)
+		- IP of the server (default = VirtualBox host)
+		- Communication port (default = standard VRPN port)
+	-->
+	<arg name="server" default="192.168.56.1" />
+	<arg name="port" default="3883" />
+	
+	<!-- Connection URL to PX4 device
+		- Connection through serial port (Unix):
+			"/dev/ttyACM0:[baudrate]"
+		- Connection through UDP:
+			"udp://[host_ip]:[host_port]@[remote_ip]:[remote_port]"
+			
+			Default host is localhost and remote IP is auto-discovered
+			if the default QGC ports are defined (14550 and 14555).
+	-->
+	<arg name="fcu_url" default="udp://:14550@:14555" />
+	
+	<!-- ========================== NODES ========================== -->
+	
+	<!-- vrpn_client_ros -->
+	<node pkg="vrpn_client_ros" type="vrpn_client_node" name="vrpn_client_node" required="true" clear_params="true" output="log">
+		<param name="server" value="$(arg server)" />
+		<param name="port" value="$(arg port)" />
+		<rosparam command="load" file="$(find drone_control)/config/vrpn.yaml" />
+	</node>
+	
+	<!-- mavros -->
+	<node pkg="mavros" type="mavros_node" name="mavros" required="true" clear_params="true" output="log">
+		<param name="fcu_url" value="$(arg fcu_url)" />
+		<rosparam command="load" file="$(find drone_control)/config/px4.yaml" />
+	</node>
+	
+	<!-- drone_control -->
+	<node pkg="drone_control" type="control_node" name="control" required="true" clear_params="true" output="screen">
+		<rosparam command="load" file="$(find drone_control)/config/control.yaml" />
+	</node>
+	
+</launch>
